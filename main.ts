@@ -3,13 +3,13 @@ import { StateEffectType } from "@codemirror/state";
 import { CodeMarkerSettings, DEFAULT_SETTINGS } from './src/models/settings';
 import { CodeMarkerSettingTab } from './src/views/settingsTab';
 import { CodeMarkerModel } from './src/models/codeMarkerModel';
-import { createMarkerViewPlugin, updateFileMarkersEffect } from './src/cm6/markerViewPlugin';
+import { createMarkerStateField, updateFileMarkersEffect } from './src/cm6/markerStateField';
+import { createMarkerViewPlugin } from './src/cm6/markerViewPlugin';
 
 
 export default class CodeMarkerPlugin extends Plugin {
   settings: CodeMarkerSettings;
   model: CodeMarkerModel;
-  // Mudamos o tipo para StateEffectType apenas
   updateFileMarkersEffect: StateEffectType<{fileId: string}>;
 
   async onload() {
@@ -104,12 +104,13 @@ export default class CodeMarkerPlugin extends Plugin {
       }
     });
     
-    // 🔍 SIMPLIFICADO: Criar apenas o ViewPlugin (que gerencia tudo)
+    // 🔥 ARQUITETURA SEPARADA: Registrar StateField + ViewPlugin
     this.registerEditorExtension([
-      createMarkerViewPlugin(this.model)
+      createMarkerStateField(this.model),  // ← Decorações e estado
+      createMarkerViewPlugin(this.model)   // ← Eventos e identificação
     ]);
     
-    console.log('✅ Extensões do editor registradas');
+    console.log('✅ Extensões do editor registradas (StateField + ViewPlugin)');
     
     // 🔍 MELHORADO: Registrar eventos para sincronização entre instâncias
     
